@@ -251,7 +251,7 @@ with _tab_overview:
 				**Expert Review:** Queued for validation  
 				""")
 			
-			st.info("🔬 **Taxonomy-Free Analysis:** This sequence shows high novelty and has been assigned to a new cluster without relying on reference databases.")
+			st.info("**Taxonomy-Free Analysis:** This sequence shows high novelty and has been assigned to a new cluster without relying on reference databases.")
 			
 			# Taxonomy-Free Biodiversity Assessment
 			st.markdown("### Taxonomy-Free Biodiversity Assessment")
@@ -330,7 +330,7 @@ with _tab_overview:
 		
 		# Model Limitations Disclosure
 		st.warning("""
-		**⚠️ Model Limitations:**
+		**Model Limitations:**
 		- Deep-sea reference scarcity limits assignment confidence
 		- ~40% of reads may be unmatched (novel candidates)
 		- Performance varies with sample depth and environmental conditions
@@ -338,7 +338,7 @@ with _tab_overview:
 
 	# Upload/QC for large marine datasets
 	st.markdown("---\n### Data Upload & Quality Check")
-	st.info("📁 **Large Dataset Support:** Upload files up to 5GB each. Supports FASTA, FASTQ, and compressed formats (.gz, .bz2)")
+	st.info("**Large Dataset Support:** Upload files up to 5GB each. Supports FASTA, FASTQ, and compressed formats (.gz, .bz2)")
 	
 	up_cols = st.columns([2, 3])
 	with up_cols[0]:
@@ -436,7 +436,7 @@ with _tab_novel_taxa:
 	st.markdown("## AI-Driven Novelty Detection Module")
 	
 	st.info("""
-	**🤖 Autoencoder-Based Novelty Detection:**
+	**Autoencoder-Based Novelty Detection:**
 	- Reconstruction error on DNABERT-2 sequence embeddings
 	- Sequences with score >0.8 flagged as "Candidate Novel Taxa"
 	- Independent of reference database availability
@@ -448,13 +448,13 @@ with _tab_novel_taxa:
 	
 	novelty_cols = st.columns(4)
 	with novelty_cols[0]:
-		novelty_threshold = st.slider("Novelty Threshold", 0.0, 1.0, 0.8, 0.05, help="Sequences above this score are flagged as novel taxa candidates")
+		novelty_threshold = st.slider("Novelty Threshold", 0.0, 1.0, 0.8, 0.05, help="Sequences above this score are flagged as novel taxa candidates", key="novelty_threshold_detection")
 	with novelty_cols[1]:
-		cluster_method = st.selectbox("Clustering Method", ["HDBSCAN", "UMAP + HDBSCAN", "DBSCAN", "Gaussian Mixture"])
+		cluster_method = st.selectbox("Clustering Method", ["HDBSCAN", "UMAP + HDBSCAN", "DBSCAN", "Gaussian Mixture"], key="cluster_method_novelty")
 	with novelty_cols[2]:
-		embedding_model = st.selectbox("Embedding Model", ["DNABERT-2", "Nucleotide Transformer", "ESM-2"])
+		embedding_model = st.selectbox("Embedding Model", ["DNABERT-2", "Nucleotide Transformer", "ESM-2"], key="embedding_model_novelty")
 	with novelty_cols[3]:
-		min_cluster_size = st.number_input("Min Cluster Size", min_value=3, max_value=50, value=5)
+		min_cluster_size = st.number_input("Min Cluster Size", min_value=3, max_value=50, value=5, key="min_cluster_size_novelty")
 	
 	# Reference Database Independence Toggle
 	st.markdown("## Reference Database Independence")
@@ -466,10 +466,10 @@ with _tab_novel_taxa:
 	with independence_cols[1]:
 		st.markdown("""
 		**Processing Order:**
-		1. ✅ Sequence embedding (DNABERT-2)
-		2. ✅ Unsupervised clustering (HDBSCAN)
-		3. ✅ Novelty scoring (Autoencoder)
-		4. 🔄 Reference annotation (Optional)
+		1. Sequence embedding (DNABERT-2)
+		2. Unsupervised clustering (HDBSCAN)
+		3. Novelty scoring (Autoencoder)
+		4. Reference annotation (Optional)
 		""")
 	
 	# Novel Taxa Clusters
@@ -699,133 +699,6 @@ with _tab_deep_sea_map:
 		if st.button("Download Coordinates", key="export_coords"):
 			st.info("Downloading GPS coordinates for field work...")
 
-with _tab_discovery_map:
-	st.markdown("# Global eDNA Discovery & Sampling Network")
-	st.markdown("*Real-time global marine eDNA discoveries and sampling locations*")
-	
-	# Map 1: Discovery-focused with real-time data
-	st.markdown("## Interactive Discovery Map")
-	
-	# Recent discoveries data with your GPS coordinates
-	discovery_data = pd.DataFrame({
-		"lat": [11.35, -15.0, -22.0, 28.27, 26.0, 13.5, 47.0, 33.74],
-		"lon": [142.2, 40.0, 166.0, -16.6, -105.0, 121.0, 179.0, -118.24],
-		"discovery": ["Mariana Trench", "Mozambique Coast", "New Caledonia", "Tenerife", "Salas y Gómez Ridge", "Verde Island Passage", "Bounty Trough NZ", "Los Angeles Ports"],
-		"species": ["Lepetodrilus marianae", "Guitar shark sp.", "Turridrupa magnifica", "Granulina nekton", "Galathea sp.", "Shore fish diversity", "Deep-sea eelpout", "Urban marine diversity"],
-		"year": [2025, 2025, 2025, 2025, 2025, 2024, 2024, 2024],
-		"type": ["Deep-sea", "Coastal", "Deep-sea", "Coastal", "Seamount", "Reef", "Deep-sea", "Urban"],
-		"depth": [4990, 200, 350, 48, 407, 30, 2762, 15],
-		"significance": [95, 85, 92, 98, 89, 88, 78, 82]
-	})
-	
-	fig_discoveries = px.scatter_mapbox(
-		discovery_data,
-		lat="lat",
-		lon="lon",
-		size="significance",
-		color="type",
-		hover_name="discovery",
-		hover_data={"species": True, "year": True, "depth": True},
-		color_discrete_map={
-			"Deep-sea": "#1f4e79",
-			"Coastal": "#5aa9ff", 
-			"Reef": "#7ce8ff",
-			"Seamount": "#4a90e2",
-			"Urban": "#6c9bd1"
-		},
-		size_max=20,
-		zoom=1,
-		height=600,
-		title="Recent Marine Species Discoveries (2023-2025)"
-	)
-	fig_discoveries.update_layout(
-		mapbox_style="open-street-map",
-		margin=dict(l=0,r=0,t=40,b=0),
-		template="plotly_dark"
-	)
-	st.plotly_chart(fig_discoveries, use_container_width=True)
-	
-	# Interactive filters
-	filter_cols = st.columns(4)
-	with filter_cols[0]:
-		year_filter = st.selectbox("Discovery Year", ["All", "2025", "2024", "2023"])
-	with filter_cols[1]:
-		type_filter = st.selectbox("Environment Type", ["All", "Deep-sea", "Coastal", "Reef", "Seamount", "Urban"])
-	with filter_cols[2]:
-		depth_filter = st.selectbox("Depth Range", ["All", "0-50m", "50-200m", "200-1000m", "1000m+"])
-	with filter_cols[3]:
-		expedition_filter = st.selectbox("Expedition", ["All", "Active", "Completed", "Planned"])
-	
-	# Recent discoveries timeline
-	st.markdown("## Recent Discoveries Timeline")
-	
-	timeline_cols = st.columns(2)
-	with timeline_cols[0]:
-		st.markdown("""
-		### September 2025
-		**Mariana Trench Discovery**
-		- Location: 11°21'N, 142°12'E
-		- Species: *Lepetodrilus marianae* (hydrothermal vent limpet)
-		- Depth: 4,990 meters
-		- Significance: Deepest eDNA-based species discovery
-		- Research Team: Deep Ocean Research Institute
-		""")
-		
-	with timeline_cols[1]:
-		st.markdown("""
-		### August 2025
-		**Pacific Seamount Survey**
-		- Location: 26°S, 105°W (Salas y Gómez Ridge)
-		- Discovery: 47 new species from single sample
-		- Depth: 407 meters
-		- Processing: 48-hour identification record
-		- Impact: First Galathea squat lobster in SE Pacific
-		""")
-	
-	# Active sampling network
-	st.markdown("## Active Sampling Network")
-	
-	sampling_data = pd.DataFrame({
-		"lat": [-68.35, 10.48, 42.35, 60.0, -15.0],
-		"lon": [77.58, 99.17, -71.0, 5.0, 40.0],
-		"station": ["Antarctic Research", "Gulf of Thailand", "North Atlantic", "North Sea", "Western Indian Ocean"],
-		"status": ["Active", "Active", "Active", "Planned", "Active"],
-		"samples_collected": [127, 450, 89, 0, 203],
-		"species_detected": [89, 234, 156, 0, 178]
-	})
-	
-	fig_sampling = px.scatter_mapbox(
-		sampling_data,
-		lat="lat",
-		lon="lon",
-		size="samples_collected",
-		color="status",
-		hover_name="station",
-		hover_data={"samples_collected": True, "species_detected": True},
-		color_discrete_map={"Active": "#00ff00", "Planned": "#ffaa00", "Completed": "#aaaaaa"},
-		size_max=15,
-		zoom=1,
-		height=400
-	)
-	fig_sampling.update_layout(
-		mapbox_style="open-street-map",
-		margin=dict(l=0,r=0,t=0,b=0),
-		template="plotly_dark"
-	)
-	st.plotly_chart(fig_sampling, use_container_width=True)
-	
-	# Statistics dashboard
-	st.markdown("## Network Statistics")
-	stats_cols = st.columns(4)
-	with stats_cols[0]:
-		st.metric("Active Expeditions", "12", "+3 this month")
-	with stats_cols[1]:
-		st.metric("Species Discovered", "2,847", "+89 this month")
-	with stats_cols[2]:
-		st.metric("Sampling Stations", "1,456", "+67 this month")
-	with stats_cols[3]:
-		st.metric("Countries Involved", "45", "+2 this month")
-
 with _tab_ai_pipeline:
 	st.markdown("# AI Pipeline for Deep-Sea eDNA")
 	st.markdown("*Taxonomy-free processing workflow for novel taxa discovery*")
@@ -847,11 +720,11 @@ with _tab_ai_pipeline:
 	for i, (col, step) in enumerate(zip(pipeline_cols, pipeline_steps)):
 		with col:
 			if i < 3:
-				st.success(f"✅ {step}")
+				st.success(f"Complete: {step}")
 			elif i < 5:
-				st.warning(f"⚡ {step}")
+				st.warning(f"Processing: {step}")
 			else:
-				st.info(f"⏳ {step}")
+				st.info(f"Pending: {step}")
 	
 	# GPU-Optimized Genomic Processing
 	st.markdown("## GPU-Optimized Genomic Processing")
@@ -897,7 +770,7 @@ with _tab_ai_pipeline:
 	
 	# Processing Time Disclaimer
 	st.info("""
-	**⚡ GPU-Optimized Processing:**
+	**GPU-Optimized Processing:**
 	- CUDA-enabled DNABERT inference for embedding computation
 	- GPU-accelerated clustering with parallel HDBSCAN
 	- Batch autoencoder processing for novelty detection
@@ -1020,7 +893,7 @@ with _tab_ai_pipeline:
 	
 	# Performance Limitations
 	st.warning("""
-	**⚠️ Deep-Sea Validation Challenges:**
+	**Deep-Sea Validation Challenges:**
 	- Expert-curated test sets from trenches, seamounts, and abyssal plains
 	- Performance degrades with increasing depth (Hadal < Abyssal < Bathyal)
 	- Environmental extremes affect DNA quality and species detection
@@ -1107,24 +980,24 @@ with _tab_ai_pipeline:
 	with config_cols[0]:
 		batch_size = st.selectbox("Batch Size", [32, 64, 128, 256], index=2)
 	with config_cols[1]:
-		embedding_model = st.selectbox("Embedding Model", ["DNABERT-2", "Nucleotide Transformer", "ESM-2"])
+		embedding_model = st.selectbox("Embedding Model", ["DNABERT-2", "Nucleotide Transformer", "ESM-2"], key="embedding_model_pipeline")
 	with config_cols[2]:
-		clustering_method = st.selectbox("Clustering", ["HDBSCAN", "DBSCAN", "Gaussian Mixture"])
+		clustering_method = st.selectbox("Clustering", ["HDBSCAN", "DBSCAN", "Gaussian Mixture"], key="clustering_method_pipeline")
 	with config_cols[3]:
-		novelty_threshold = st.slider("Novelty Threshold", 0.5, 0.95, 0.7)
+		novelty_threshold = st.slider("Novelty Threshold", 0.5, 0.95, 0.7, key="novelty_threshold_pipeline")
 	
 	# Advanced Settings
 	with st.expander("Advanced Pipeline Settings"):
 		adv_cols = st.columns(3)
 		with adv_cols[0]:
-			st.number_input("Min Sequence Length", min_value=50, max_value=1000, value=150)
-			st.number_input("Max Sequence Length", min_value=500, max_value=5000, value=1500)
+			st.number_input("Min Sequence Length", min_value=50, max_value=1000, value=150, key="min_seq_length")
+			st.number_input("Max Sequence Length", min_value=500, max_value=5000, value=1500, key="max_seq_length")
 		with adv_cols[1]:
-			st.selectbox("Quality Filter", ["Phred > 20", "Phred > 25", "Phred > 30"])
-			st.checkbox("Remove Chimeras", value=True)
+			st.selectbox("Quality Filter", ["Phred > 20", "Phred > 25", "Phred > 30"], key="quality_filter")
+			st.checkbox("Remove Chimeras", value=True, key="remove_chimeras")
 		with adv_cols[2]:
-			st.selectbox("Embedding Aggregation", ["Mean", "Max", "Attention"])
-			st.checkbox("Use Environmental Features", value=True)
+			st.selectbox("Embedding Aggregation", ["Mean", "Max", "Attention"], key="embedding_aggregation")
+			st.checkbox("Use Environmental Features", value=True, key="use_env_features")
 	
 	# Start Processing
 	st.markdown("## Start Processing")
@@ -1132,15 +1005,16 @@ with _tab_ai_pipeline:
 	process_cols = st.columns(3)
 	with process_cols[0]:
 		if st.button("Start Batch Processing", use_container_width=True):
-			st.success("🚀 Processing started! Monitor progress above.")
+			st.success("Processing started! Monitor progress above.")
 	with process_cols[1]:
 		if st.button("Pause Processing", use_container_width=True):
-			st.warning("⏸️ Processing paused.")
+			st.warning("Processing paused.")
 	with process_cols[2]:
 		if st.button("Export Results", use_container_width=True):
-			st.info("📁 Exporting processed results...")
+			st.info("Exporting processed results...")
 
-with _tab_taxonomic_map:
+# Additional Database Content
+with st.expander("Taxonomic Classification System", expanded=False):
 	st.markdown("# Marine Taxonomic Classification & Reference Database")
 	st.markdown("*Scientific classification, reference databases, and taxonomic relationships*")
 	
@@ -1760,7 +1634,7 @@ with _tab_expert_review:
 	
 	# Validation Limitations
 	st.warning("""
-	**⚠️ Validation Challenges:**
+	**Validation Challenges:**
 	- Expert disagreement common for novel deep-sea taxa
 	- Limited morphological data for validation
 	- Seasonal and geographic variation affects consistency
@@ -1814,7 +1688,7 @@ with _tab_research:
 		
 		# Performance Disclaimer
 		st.info("""
-		**📊 Model Performance Disclaimer:**
+		**Model Performance Disclaimer:**
 		- Accuracy validated on Arctic and abyssal datasets
 		- ROC curves and confusion matrices available
 		- Performance varies with environmental conditions
@@ -1941,7 +1815,8 @@ with _tab_research:
 		if st.button("Contact Research Team", use_container_width=True):
 			st.info("Connecting with our research collaboration team...")
 
-with _tab_publications:
+# Additional Research Content
+with st.expander("Research Publications", expanded=False):
 	st.markdown("# Deep-Sea eDNA Research Publications")
 	st.markdown("*Specialized collection focusing on deep-sea eDNA challenges, AI-driven novel species detection, and taxonomy-free methods*")
 	
@@ -1950,13 +1825,13 @@ with _tab_publications:
 	
 	search_cols = st.columns(4)
 	with search_cols[0]:
-		topic_filter = st.selectbox("Topic", ["All", "AI Novelty Detection", "Taxonomy-Free Methods", "Deep-Sea Challenges", "Database Independence", "GPU Optimization", "Misclassification Issues", "Sample Preservation"])
+		topic_filter = st.selectbox("Topic", ["All", "AI Novelty Detection", "Taxonomy-Free Methods", "Deep-Sea Challenges", "Database Independence", "GPU Optimization", "Misclassification Issues", "Sample Preservation"], key="topic_filter_publications")
 	with search_cols[1]:
-		year_filter = st.selectbox("Year", ["All", "2025", "2024", "2023", "2022", "2021"])
+		year_filter = st.selectbox("Year", ["All", "2025", "2024", "2023", "2022", "2021"], key="year_filter_publications")
 	with search_cols[2]:
-		journal_filter = st.selectbox("Journal", ["All", "Frontiers in Ocean Sustainability", "Ecological Indicators", "Molecular Ecology Resources", "PeerJ", "Bioinformatics", "Environmental DNA", "Scientific Reports"])
+		journal_filter = st.selectbox("Journal", ["All", "Frontiers in Ocean Sustainability", "Ecological Indicators", "Molecular Ecology Resources", "PeerJ", "Bioinformatics", "Environmental DNA", "Scientific Reports"], key="journal_filter_publications")
 	with search_cols[3]:
-		method_filter = st.selectbox("Method Focus", ["All", "Autoencoder Detection", "DNABERT Embeddings", "HDBSCAN Clustering", "GPU Acceleration", "Reference Independence"])
+		method_filter = st.selectbox("Method Focus", ["All", "Autoencoder Detection", "DNABERT Embeddings", "HDBSCAN Clustering", "GPU Acceleration", "Reference Independence"], key="method_filter_publications")
 	
 	# Search bar
 	search_query = st.text_input("Search papers by keywords, authors, or title", placeholder="e.g., novelty detection, taxonomy-free, deep-sea, autoencoder")
@@ -1967,7 +1842,7 @@ with _tab_publications:
 	featured_cols = st.columns(2)
 	with featured_cols[0]:
 		st.markdown("""
-		### 🏆 Editor's Pick: Integrative Deep-Sea Assessment
+		### Editor's Pick: Integrative Deep-Sea Assessment
 		**Framing Cutting-Edge Integrative Deep-Sea Biodiversity Assessment**
 		
 		*Smith, J.; Martínez, L.; Zhao, Y. (2025). Frontiers in Ocean Sustainability*
@@ -1979,7 +1854,7 @@ with _tab_publications:
 		
 	with featured_cols[1]:
 		st.markdown("""
-		### 🤖 AI Breakthrough: Taxonomy-Free Assessment
+		### AI Breakthrough: Taxonomy-Free Assessment
 		**AI for Taxonomy-Free Biodiversity Assessment**
 		
 		*Lee, K.; Patel, R.; Nguyen, A. (2024). Ecological Indicators*
@@ -1989,520 +1864,9 @@ with _tab_publications:
 		**Keywords:** AI, taxonomy-free, unsupervised clustering, sequence embeddings
 		""")
 	
-	# Publications by Category
-	st.markdown("## Publications by Specialized Topics")
-	
-	# 1. AI-Driven Novelty Detection & Database Independence
-	with st.expander("1. AI-Driven Novelty Detection & Database Independence", expanded=True):
-		st.markdown("""
-		### AI-Driven Novelty Detection Papers
-		
-		**Choi, S.; Hernández, P.; Donnelly, J. (2025).** "Database-Independent Taxonomic Assignment via Novelty Detection." *Molecular Ecology Resources*  
-		[DOI: 10.1111/1755-0998.13xxx](https://doi.org/10.1111/1755-0998.13xxx)  
-		**Summary:** Introduces an autoencoder-based novelty detection model to flag unclassified eDNA reads as candidate novel taxa. Compares performance to BLAST-based methods in deep-sea samples.  
-		**Keywords:** novelty detection, autoencoder, deep-sea eDNA, database independence
-		
-		**Kim, H.; Silva, T. (2024).** "AI-Driven Sequence Embedding for Novel Taxa Discovery." *Bioinformatics*, 40(12):2045-2053  
-		[DOI: 10.1093/bioinformatics/btae123](https://doi.org/10.1093/bioinformatics/btae123)  
-		**Summary:** Applies transformer-based DNA embeddings (DNABERT) to eDNA data, enabling rapid identification of sequence outliers. Validates on polar and abyssal datasets.  
-		**Keywords:** DNABERT, sequence embeddings, novel taxa, transformer models
-		
-		**Nguyen, P.; Carter, S. (2025).** "Integrated Novelty Detection and Taxonomic Annotation." *Frontiers in Genetics*, 16:1234567  
-		[DOI: 10.3389/fgene.2025.1234567](https://doi.org/10.3389/fgene.2025.1234567)  
-		**Summary:** Proposes a two-stage pipeline—first novelty detection, then selective reference matching—to maximize discovery of unknown deep-sea taxa with minimal false positives.  
-		**Keywords:** two-stage pipeline, novelty detection, taxonomic annotation, deep-sea taxa
-		""")
-	
-	# 2. Taxonomy-Free Methods & Unsupervised Clustering
-	with st.expander("2. Taxonomy-Free Methods & Unsupervised Clustering"):
-		st.markdown("""
-		### Taxonomy-Free Biodiversity Assessment
-		
-		**Lee, K.; Patel, R.; Nguyen, A. (2024).** "AI for Taxonomy-Free Biodiversity Assessment." *Ecological Indicators*, 158:111456  
-		[DOI: 10.1016/j.ecolind.2024.111456](https://doi.org/10.1016/j.ecolind.2024.111456)  
-		**Summary:** Demonstrates unsupervised clustering of eDNA sequence embeddings to estimate biodiversity without reference databases. Validates cluster-based diversity indices against manual curation.  
-		**Keywords:** taxonomy-free, unsupervised clustering, biodiversity indices, sequence embeddings
-		
-		**Thompson, E.; Rossi, N. (2025).** "Unsupervised Clustering of eDNA for Abyssal Plains." *Scientific Reports*, 15:8234  
-		[DOI: 10.1038/s41598-025-08234-x](https://doi.org/10.1038/s41598-025-08234-x)  
-		**Summary:** Uses HDBSCAN on UMAP-reduced eDNA features to detect high-confidence novel clusters in abyssal sediment samples.  
-		**Keywords:** HDBSCAN, UMAP, abyssal plains, unsupervised clustering
-		""")  
-		[DOI: 10.3389/fmars.2023.1050055](https://doi.org/10.3389/fmars.2023.1050055)  
-		**Summary:** eDNA applications and challenges in mangrove restoration  
-		**Keywords:** eDNA, mangrove restoration, marine conservation
-		
-		**Liu, C. et al. (2024).** "Editorial: Applications of environmental DNA in the aquatic ecosystem management of East Asia." *Frontiers in Marine Science*  
-		[DOI: 10.3389/fmars.2024.xxxxx](https://doi.org/10.3389/fmars.2024.xxxxx)  
-		**Summary:** eDNA applications in East Asian aquatic ecosystem management  
-		**Keywords:** eDNA, East Asia, aquatic ecosystem management
-		
-		**Rishan, S.T. et al. (2024).** "A critical review on eDNA metabarcoding in assessing marine pollution effects." *Chemosphere*  
-		[DOI: 10.1016/j.chemosphere.2024.xxxxx](https://doi.org/10.1016/j.chemosphere.2024.xxxxx)  
-		**Summary:** Critical review of eDNA for marine pollution assessment  
-		**Keywords:** eDNA, marine pollution, environmental assessment
-		""")
-	
-	# 3. AI & Machine Learning Applications
-	with st.expander("3. AI & Machine Learning Applications (2023-2025)"):
-		st.markdown("""
-		### Computational Innovation
-		
-		**Li, X. et al. (2023).** "Embracing eDNA and machine learning for taxonomy-free biodiversity assessment." *Ecological Indicators*  
-		[DOI: 10.1016/j.ecolind.2023.xxxxx](https://doi.org/10.1016/j.ecolind.2023.xxxxx)  
-		**Summary:** Machine learning approaches for taxonomy-free eDNA biodiversity assessment  
-		**Keywords:** machine learning, eDNA, taxonomy-free, biodiversity assessment
-		
-		**Keck, F. et al. (2023).** "A combination of machine-learning and eDNA reveals the ecological status of rivers." *Molecular Ecology*  
-		[DOI: 10.1111/mec.16xxx](https://doi.org/10.1111/mec.16xxx)  
-		**Summary:** Machine learning and eDNA for ecological status assessment  
-		**Keywords:** machine learning, eDNA, ecological status, rivers
-		
-		**Rubbens, P. et al. (2023).** "Machine learning in marine ecology." *ICES Journal of Marine Science*, 80(7):1829  
-		[DOI: 10.1093/icesjms/fsad100](https://doi.org/10.1093/icesjms/fsad100)  
-		**Summary:** Comprehensive review of machine learning applications in marine ecology  
-		**Keywords:** machine learning, marine ecology, computational methods
-		""")
-	
-	# 4. Deep-Sea & Novel Environment Studies
-	with st.expander("4. Deep-Sea & Novel Environment Studies (2022-2025)"):
-		st.markdown("""
-		### Deep-Sea Applications
-		
-		**Yoshida, T. et al. (2023).** "Optimization of environmental DNA analysis using pumped deep-sea water for monitoring fish biodiversity." *Frontiers in Marine Science*  
-		[DOI: 10.3389/fmars.2023.xxxxx](https://doi.org/10.3389/fmars.2023.xxxxx)  
-		**Summary:** Optimization of deep-sea eDNA analysis for fish biodiversity monitoring  
-		**Keywords:** deep-sea, eDNA, fish biodiversity, monitoring optimization
-		
-		**Gallego, R. et al. (2024).** "North Atlantic deep-sea benthic biodiversity unveiled through sponge environmental DNA." *Nature Communications Biology*  
-		[DOI: 10.1038/s42003-024-xxxxx](https://doi.org/10.1038/s42003-024-xxxxx)  
-		**Summary:** Deep-sea benthic biodiversity revealed through sponge eDNA  
-		**Keywords:** deep-sea, benthic biodiversity, sponge eDNA, North Atlantic
-		
-		**Brodnicke, O.B. et al. (2023).** "Deep-sea sponge derived environmental DNA analysis reveals vertebrate biodiversity around seamounts." *Environmental DNA*  
-		[DOI: 10.1002/edn3.xxx](https://doi.org/10.1002/edn3.xxx)  
-		**Summary:** Vertebrate biodiversity around seamounts revealed by sponge eDNA  
-		**Keywords:** deep-sea sponges, eDNA, vertebrate biodiversity, seamounts
-		
-		**Iguchi, A. et al. (2024).** "Utilizing environmental DNA and imaging to study the deep-sea around seamounts." *Nature Water*  
-		[DOI: 10.1038/s44221-024-xxxxx](https://doi.org/10.1038/s44221-024-xxxxx)  
-		**Summary:** Combined eDNA and imaging approaches for deep-sea seamount studies  
-		**Keywords:** eDNA, imaging, deep-sea, seamounts
-		""")
-	
-	# 5. Marine Mammal & Vertebrate Studies
-	with st.expander("5. Marine Mammal & Vertebrate Studies (2022-2025)"):
-		st.markdown("""
-		### Marine Mammals
-		
-		**Suarez-Bregua, P. et al. (2022).** "Environmental DNA (eDNA) for monitoring marine mammals: Challenges and opportunities." *Frontiers in Marine Science*  
-		[DOI: 10.3389/fmars.2022.987774](https://doi.org/10.3389/fmars.2022.987774)  
-		**Summary:** Comprehensive review of eDNA applications for marine mammal monitoring  
-		**Keywords:** eDNA, marine mammals, monitoring, challenges, opportunities
-		
-		**Environmental DNA Documents Ecosystem-Wide Marine Mammal Responses (2025).** *Environmental DNA*  
-		[DOI: 10.1002/edn3.xxx](https://doi.org/10.1002/edn3.xxx)  
-		**Summary:** Ecosystem-wide marine mammal responses documented through eDNA  
-		**Keywords:** eDNA, marine mammals, ecosystem responses
-		""")
-	
-	# 6. Seasonal & Climate Response Studies
-	with st.expander("6. Seasonal & Climate Response Studies (2019-2025)"):
-		st.markdown("""
-		### Temporal & Climate Studies
-		
-		**Berry, T.E. et al. (2019).** "Marine environmental DNA biomonitoring reveals seasonal patterns in biodiversity and identifies ecosystem responses to anomalous climatic events." *PLoS Genetics*  
-		[DOI: 10.1371/journal.pgen.1007943](https://doi.org/10.1371/journal.pgen.1007943)  
-		**Summary:** Seasonal biodiversity patterns and climate responses revealed by marine eDNA  
-		**Keywords:** marine eDNA, seasonal patterns, climate events, biodiversity
-		
-		**Jo, T.S. et al. (2025).** "Spatial dispersal of environmental DNA particles in lentic and marine ecosystems." *Ecological Indicators*  
-		[DOI: 10.1016/j.ecolind.2025.xxxxx](https://doi.org/10.1016/j.ecolind.2025.xxxxx)  
-		**Summary:** Spatial dispersal patterns of eDNA particles in aquatic ecosystems  
-		**Keywords:** eDNA dispersal, spatial patterns, marine ecosystems
-		""")
-	
-	# 7. Technical Advances & Protocols
-	with st.expander("7. Technical Advances & Protocols (2022-2025)"):
-		st.markdown("""
-		### Methodological Improvements
-		
-		**Pochon, X. et al. (2025).** "Advancing the environmental DNA and RNA toolkit for aquatic ecosystem monitoring." *PeerJ Life and Environment*  
-		[DOI: 10.7717/peerj-life.xxx](https://doi.org/10.7717/peerj-life.xxx)  
-		**Summary:** Advances in eDNA and eRNA toolkit for aquatic monitoring  
-		**Keywords:** eDNA, eRNA, toolkit, aquatic monitoring
-		
-		**Bizzozzero, M.R. et al. (2024).** "Enhancing environmental DNA metabarcoding from marine fish communities." *Environmental DNA*  
-		[DOI: 10.1002/edn3.xxx](https://doi.org/10.1002/edn3.xxx)  
-		**Summary:** Enhancement methods for marine fish eDNA metabarcoding  
-		**Keywords:** eDNA metabarcoding, marine fish, methodology enhancement
-		
-		**Wang, S. et al. (2024).** "Application of environmental DNA metabarcoding to fishery management and conservation." *Aquaculture and Fisheries*  
-		[DOI: 10.1016/j.aaf.2024.xxxxx](https://doi.org/10.1016/j.aaf.2024.xxxxx)  
-		**Summary:** eDNA metabarcoding applications in fishery management  
-		**Keywords:** eDNA metabarcoding, fishery management, conservation
-		""")
-	
-	# 8. Regional & Global Applications
-	with st.expander("8. Regional & Global Applications (2022-2025)"):
-		st.markdown("""
-		### Geographic Studies
-		
-		**Haderlé, R. et al. (2024).** "eDNA-based survey of marine vertebrate biodiversity off Guadeloupe." *Biodiversity Data Journal*  
-		[DOI: 10.3897/BDJ.12.xxxxx](https://doi.org/10.3897/BDJ.12.xxxxx)  
-		**Summary:** Marine vertebrate biodiversity survey off Guadeloupe using eDNA  
-		**Keywords:** eDNA, marine vertebrates, Guadeloupe, biodiversity survey
-		
-		**Czachur, M.V. et al. (2022).** "Novel insights into marine fish biodiversity across a regional temperature gradient using eDNA." *Environmental DNA*  
-		[DOI: 10.1002/edn3.xxx](https://doi.org/10.1002/edn3.xxx)  
-		**Summary:** Marine fish biodiversity across temperature gradients using eDNA  
-		**Keywords:** eDNA, marine fish, temperature gradient, biodiversity
-		
-		**Holman, L.E. et al. (2019).** "Detection of introduced and resident marine species using environmental DNA metabarcoding." *Scientific Reports*  
-		[DOI: 10.1038/s41598-019-47899-7](https://doi.org/10.1038/s41598-019-47899-7)  
-		**Summary:** Detection of introduced and resident marine species via eDNA  
-		**Keywords:** eDNA metabarcoding, introduced species, marine biodiversity
-		""")
-	
-	# 9. Pollution & Environmental Impact
-	with st.expander("9. Pollution & Environmental Impact (2024-2025)"):
-		st.markdown("""
-		### Environmental Monitoring
-		
-		**Acharya-Patel, N. et al. (2025).** "Monitoring marine pollution effects through targeted eDNA approaches." *Marine Pollution Bulletin*  
-		[DOI: 10.1016/j.marpolbul.2025.xxxxx](https://doi.org/10.1016/j.marpolbul.2025.xxxxx)  
-		**Summary:** Targeted eDNA approaches for monitoring marine pollution effects  
-		**Keywords:** eDNA, marine pollution, environmental monitoring
-		
-		**Critical review on application of environmental DNA in marine oil spills (2025).** *Science of the Total Environment*  
-		[DOI: 10.1016/j.scitotenv.2025.xxxxx](https://doi.org/10.1016/j.scitotenv.2025.xxxxx)  
-		**Summary:** Critical review of eDNA applications in marine oil spill assessment  
-		**Keywords:** eDNA, marine oil spills, environmental impact
-		""")
-	
-	# 10. Future Directions & Policy
-	with st.expander("10. Future Directions & Policy (2024-2025)"):
-		st.markdown("""
-		### Policy & Management
-		
-		**ISA Policy Brief (2024).** "Environmental DNA studies have the potential to advance deep-sea biodiversity knowledge." *International Seabed Authority*  
-		[Link: ISA Policy Brief](https://www.isa.org.jm/policy-brief-edna-2024)  
-		**Summary:** Policy brief on eDNA potential for deep-sea biodiversity knowledge  
-		**Keywords:** eDNA, deep-sea biodiversity, policy, ISA
-		
-		**Marine eDNA Monitoring Network in Latin America and Caribbean (2024).** *POGO*  
-		[Link: POGO Report](https://www.ocean-partners.org/edna-lac-2024)  
-		**Summary:** Development of marine eDNA monitoring network in LAC region  
-		**Keywords:** eDNA monitoring, Latin America, Caribbean, network
-		
-		**MariBiome marine sensing platform development (2025).** *Aquatech Trade*  
-		[Link: Aquatech Report](https://www.aquatechtrade.com/maribiome-2025)  
-		**Summary:** Development of MariBiome marine sensing platform  
-		**Keywords:** MariBiome, marine sensing, platform development
-		""")
-	
-	# Publication Statistics
-	st.markdown("## Publication Statistics")
-	
-	pub_stats_cols = st.columns(4)
-	with pub_stats_cols[0]:
-		st.metric("Total Papers", "50+", "Peer-reviewed studies")
-	with pub_stats_cols[1]:
-		st.metric("Publication Years", "2017-2025", "8-year span")
-	with pub_stats_cols[2]:
-		st.metric("Major Journals", "15+", "High-impact venues")
-	with pub_stats_cols[3]:
-		st.metric("Geographic Coverage", "Global", "All ocean basins")
-	
-	# Export and Citation Tools
-	st.markdown("## Export & Citation Tools")
-	
-	export_cols = st.columns(3)
-	with export_cols[0]:
-		if st.button("Export as CSV", use_container_width=True):
-			st.info("Downloading publication list as CSV file...")
-	with export_cols[1]:
-		if st.button("Export as BibTeX", use_container_width=True):
-			st.info("Downloading citations in BibTeX format...")
-	with export_cols[2]:
-		if st.button("Generate APA Citations", use_container_width=True):
-			st.info("Generating APA format citations...")
-	
-	# Submission Form
-	st.markdown("## Submit New Publications")
-	
-	st.markdown("""
-	### Contribute to Our Database
-	
-	Help us maintain the most comprehensive collection of marine eDNA research by submitting new publications.
-	""")
-	
-	submission_form_cols = st.columns(2)
-	with submission_form_cols[0]:
-		paper_title = st.text_input("Paper Title")
-		authors = st.text_input("Authors")
-		journal = st.text_input("Journal")
-		year = st.number_input("Publication Year", min_value=2017, max_value=2025, value=2024)
-	
-	with submission_form_cols[1]:
-		doi_link = st.text_input("DOI or Link")
-		keywords = st.text_input("Keywords (comma-separated)")
-		category = st.selectbox("Category", ["Reviews & Methodology", "Recent Applications", "Machine Learning", "Deep-Sea Studies", "Marine Mammals", "Seasonal/Climate", "Protocols/Tech", "Regional Studies", "Environmental Impact", "Future Directions"])
-		
-	summary = st.text_area("Brief Summary", height=100)
-	
-	if st.button("Submit Publication", use_container_width=True):
-		st.success("Thank you! Your publication submission has been received and will be reviewed by our editorial team.")
-
-with _tab_research:
-	st.markdown("# Research Hub")
-	st.markdown("*Comprehensive research tools, publications, and collaboration platform*")
-	
-	# Research sections
-	st.markdown("## Technology Spotlights")
-	
-	tech_cols = st.columns(3)
-	with tech_cols[0]:
-		st.markdown("""
-		### DNABERT AI Model
-		**95% Accuracy in Species Identification**
-		
-		Our latest AI model achieves unprecedented accuracy in marine species identification from eDNA sequences.
-		
-		- **Training Data:** 2.4M marine sequences
-		- **Processing Speed:** 1,000 sequences/minute  
-		- **Accuracy:** 95% species-level identification
-		- **Coverage:** 15,000+ marine taxa
-		""")
-		
-	with tech_cols[1]:
-		st.markdown("""
-		### Portable eDNA Sequencers
-		**Real-Time Field Analysis**
-		
-		MinION and other portable sequencers now enable real-time species identification aboard research vessels.
-		
-		- **Device:** Oxford Nanopore MinION
-		- **Analysis Time:** 2-6 hours
-		- **Power:** USB-powered
-		- **Connectivity:** Satellite internet compatible
-		""")
-		
-	with tech_cols[2]:
-		st.markdown("""
-		### Blockchain Data Security
-		**Secure Marine Biodiversity Data**
-		
-		Blockchain technology ensures data integrity and enables secure sharing of marine biodiversity discoveries.
-		
-		- **Network:** Marine Biodiversity Chain
-		- **Participants:** 150+ research institutions
-		- **Records:** 500K+ verified sequences
-		- **Security:** Immutable data provenance
-		""")
-	
-	# Conservation Impact Stories
-	st.markdown("## Conservation Impact Stories")
-	
-	conservation_cols = st.columns(2)
-	with conservation_cols[0]:
-		st.markdown("""
-		### Endangered Whale Population Tracking
-		
-		**North Atlantic Right Whales** - eDNA monitoring has revolutionized tracking of this critically endangered species, with only ~340 individuals remaining.
-		
-		**Impact:**
-		- Real-time population monitoring without ship strikes risk
-		- 15% increase in detection accuracy vs. visual surveys  
-		- Critical habitat mapping for shipping lane adjustments
-		- Early warning system for fishing gear entanglement zones
-		
-		**Result:** 2 new critical habitat areas designated by NOAA
-		""")
-		
-	with conservation_cols[1]:
-		st.markdown("""
-		### Marine Protected Area Effectiveness
-		
-		**Great Barrier Reef Marine Park** - eDNA surveys measure biodiversity recovery in no-take zones vs. fishing areas.
-		
-		**Findings:**
-		- 40% higher fish diversity in protected zones
-		- Faster recovery of apex predator populations
-		- Coral-associated species show 60% increase
-		- Spillover effects detected 2km from boundaries
-		
-		**Result:** MPA boundaries expanded by 15%
-		""")
-	
-	# Community Contributions
-	st.markdown("## Community Contributions")
-	
-	community_stats = st.columns(4)
-	with community_stats[0]:
-		st.metric("Citizen Scientists", "12,847", "+1,203 this month")
-	with community_stats[1]:
-		st.metric("Sequences Uploaded", "89,432", "+10,234 this month")
-	with community_stats[2]:
-		st.metric("Countries Participating", "67", "+3 this month")
-	with community_stats[3]:
-		st.metric("High Schools Involved", "234", "+18 this month")
-	
-	st.markdown("""
-	### Student Spotlight: Harbor Discovery
-	
-	**Lincoln High School Marine Biology Club, California** - Students discovered a potentially new nudibranch species in their local harbor using eDNA sampling techniques learned through our education program.
-	
-	**Discovery Details:**
-	- **Species:** *Hermissenda* sp. nov. (candidate)
-	- **Location:** Monterey Harbor, California
-	- **Students:** Sarah Kim, Marcus Rodriguez, Aisha Patel
-	- **Teacher:** Dr. Jennifer Walsh
-	- **Status:** Under taxonomic review at UC San Diego
-	
-	*"Seeing students make real scientific discoveries is incredibly rewarding. This shows that marine biodiversity research isn't just for PhD scientists anymore."* - Dr. Jennifer Walsh
-	""")
-	
-	# Training & Tutorials Section
-	st.markdown("## Training & Tutorials")
-	
-	tutorial_cols = st.columns(3)
-	with tutorial_cols[0]:
-		st.markdown("""
-		### Sample Collection Guide
-		**How to Collect eDNA for Maximum Species Detection**
-		
-		- Water sampling protocols
-		- Filtration techniques  
-		- Storage and preservation
-		- Chain of custody procedures
-		- Quality control measures
-		
-		**Video Tutorial:** 15 minutes
-		**Protocol Download:** PDF available
-		""")
-		
-	with tutorial_cols[1]:
-		st.markdown("""
-		### Bioinformatics Pipeline
-		**From Raw Sequences to Species Lists**
-		
-		- Quality filtering and trimming
-		- Taxonomic assignment
-		- Statistical analysis
-		- Visualization techniques
-		- Report generation
-		
-		**Hands-on Workshop:** 3 hours
-		**Code Repository:** GitHub available
-		""")
-		
-	with tutorial_cols[2]:
-		st.markdown("""
-		### Quality Control
-		**Avoiding Contamination in eDNA Studies**
-		
-		- Negative controls setup
-		- Contamination sources
-		- Laboratory protocols
-		- Data validation
-		- Troubleshooting guide
-		
-		**Checklist:** Interactive tool
-		**Best Practices:** Expert tips
-		""")
-	
-	# Database Updates
-	st.markdown("## Database & Reference Updates")
-	
-	db_cols = st.columns(2)
-	with db_cols[0]:
-		st.markdown("""
-		### SILVA Database Integration
-		**15,000 New Marine Taxa Added**
-		
-		Latest SILVA release (v139) integrated with MarineTaxa.ai:
-		- **New sequences:** 847,392
-		- **Marine taxa:** +15,247  
-		- **Quality filtered:** 99.2% accuracy
-		- **Coverage improvement:** +12% for deep-sea species
-		
-		**Next Update:** December 2025
-		""")
-		
-	with db_cols[1]:
-		st.markdown("""
-		### Reference Genome Library  
-		**90% Coverage of Known Marine Life**
-		
-		Comprehensive reference library expansion:
-		- **Genomes added:** 2,847 new species
-		- **Total coverage:** 90% of described marine taxa
-		- **Quality:** Chromosome-level assemblies
-		- **Focus areas:** Deep-sea, polar, and tropical species
-		
-		**Milestone:** 50,000 marine genomes by 2026
-		""")
-	
-	# Live Updates Section
-	st.markdown("## Live Updates & Real-Time Data")
-	
-	# Simulated live data
-	import datetime
-	current_time = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-	
-	live_cols = st.columns(3)
-	with live_cols[0]:
-		st.markdown(f"""
-		### LIVE: Active Expeditions
-		**Last Updated:** {current_time}
-		
-		- **R/V Falkor** - Mariana Trench (Day 12/21)
-		- **R/V Investigator** - Southern Ocean (Day 8/14) 
-		- **R/V Atlantis** - Mid-Atlantic Ridge (Day 5/18)
-		- **Citizen Science** - 47 active sampling sites
-		""")
-		
-	with live_cols[1]:
-		st.markdown("""
-		### Processing Queue
-		**Real-Time Analysis Status**
-		
-		- **Sequences in queue:** 12,847
-		- **Processing rate:** 1,200/hour
-		- **Estimated completion:** 10.7 hours
-		- **AI models running:** 4 parallel instances
-		""")
-		
-	with live_cols[2]:
-		st.markdown("""
-		### This Week's Highlights
-		**Top Discoveries & Trends**
-		
-		- **New species candidates:** 23
-		- **Trending location:** Coral Triangle
-		- **Hot taxonomic group:** Deep-sea molluscs
-		- **Most active researcher:** Dr. Maria Santos
-		""")
-	
-	# Interactive Features Navigation
-	st.markdown("## Explore More")
-	
-	nav_cols = st.columns(4)
-	with nav_cols[0]:
-		if st.button("ALL DISCOVERIES", use_container_width=True):
-			st.info("Browse complete species discovery archive - 47,892 species detected")
-	with nav_cols[1]:
-		if st.button("RECENT EXPEDITIONS", use_container_width=True):
-			st.info("Latest field work and sampling campaigns - 23 active expeditions")
-	with nav_cols[2]:
-		if st.button("TRENDING RESEARCH", use_container_width=True):
-			st.info("Most viewed/discussed studies - Deep-sea biodiversity trending")
-	with nav_cols[3]:
-		if st.button("EXPLORE REGIONS", use_container_width=True):
-			st.info("Geographic browse by ocean/sea/region - Indo-Pacific most active")
 
 # Footer
 st.markdown("<div class='mtx-footer'>India · Powered by MarineTaxa.ai · Research-first eDNA analytics</div>", unsafe_allow_html=True)
+
 
 
